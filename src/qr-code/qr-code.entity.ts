@@ -6,7 +6,7 @@ export class QrCode {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'student_id', unique: true })
+  @Column({ name: 'student_id' })
   studentId: number;
 
   @Column({ name: 'qr_value' })

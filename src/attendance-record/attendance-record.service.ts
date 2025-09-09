@@ -20,9 +20,12 @@ export class AttendanceRecordService {
     attendanceRecord: Partial<AttendanceRecord>,
   ): Promise<AttendanceRecord> {
     const existingAttendanceRecord = await this.findByAttendanceRecords(
-      attendanceRecord.session?.id ?? 0,
-      attendanceRecord.student?.id ?? 0,
+      attendanceRecord.sessionId ?? 0,
+      attendanceRecord.studentId ?? 0,
     );
+    console.log(attendanceRecord.sessionId);
+    console.log(attendanceRecord.studentId);
+    console.log(existingAttendanceRecord);
 
     if (existingAttendanceRecord && existingAttendanceRecord?.length > 0) {
       throw new ConflictException('Attendance Record already in use.');
@@ -58,9 +61,14 @@ export class AttendanceRecordService {
     sessionId: number,
     studentId?: number,
   ): Promise<AttendanceRecord[] | null> {
-    const response = await this.attendanceRecordRepository.findBy({
-      sessionId,
-      studentId,
+    const response = await this.attendanceRecordRepository.find({
+      relations: ['session', 'student'],
+      where: {
+        sessionId,
+        student: {
+          userId: studentId,
+        },
+      },
     });
 
     return response;
