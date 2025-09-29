@@ -14,15 +14,27 @@ import {
 import { JwtAuthGuard } from 'src/utils/jwt-guard';
 import { CourseService } from './course.service';
 import { Course } from './course.entity';
+import { AttendanceSessionService } from 'src/attendance-session/attendance-session.service';
+import { AttendanceRecordService } from 'src/attendance-record/attendance-record.service';
 
 @Controller('course')
 export class CourseController {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    private readonly courseService: CourseService,
+    private readonly attendanceSessionService: AttendanceSessionService,
+    private readonly attendanceRecordService: AttendanceRecordService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(): Promise<Course[]> {
     return this.courseService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  findByTeachId(@Param('id', ParseIntPipe) id: number): Promise<Course[]> {
+    return this.courseService.findByTeacher(id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -41,8 +53,18 @@ export class CourseController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  @Delete(':id/:sessionId')
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('sessionId', ParseIntPipe) sessionId: number,
+  ): Promise<void> {
+    const sessions = await this.attendanceSessionService.findByCourseId(id);
+    if (sessions) {
+      sessions.forEach((item) => {
+        this.attendanceRecordService.removeAllSession(item.id);
+      });
+    }
+    await this.attendanceSessionService.removeAllCourse(id);
     await this.courseService.remove(id);
   }
 }

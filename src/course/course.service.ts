@@ -14,6 +14,10 @@ export class CourseService {
     return this.courseRepository.find();
   }
 
+  findByTeacher(teacherId: number): Promise<Course[]> {
+    return this.courseRepository.findBy({ teacherId });
+  }
+
   async create(course: Partial<Course>): Promise<Course> {
     const existingCourse = await this.findOneByCourseCode(
       course.courseCode ?? '',

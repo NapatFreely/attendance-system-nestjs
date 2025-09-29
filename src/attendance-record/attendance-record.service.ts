@@ -82,4 +82,8 @@ export class AttendanceRecordService {
       where: { sessionId },
     });
   }
+
+  async removeAllSession(id: number): Promise<void> {
+    await this.attendanceRecordRepository.delete({ sessionId: id });
+  }
 }

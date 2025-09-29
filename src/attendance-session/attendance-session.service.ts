@@ -63,6 +63,10 @@ export class AttendanceSessionService {
     await this.attendanceSessionRepository.delete({ id });
   }
 
+  async removeAllCourse(id: number): Promise<void> {
+    await this.attendanceSessionRepository.delete({ courseId: id });
+  }
+
   findOneByAttendanceSession(
     sessionId: string,
   ): Promise<AttendanceSession | null> {

@@ -14,11 +14,14 @@ import {
 import { JwtAuthGuard } from 'src/utils/jwt-guard';
 import { AttendanceSessionService } from './attendance-session.service';
 import { AttendanceSession } from './attendance-session.entity';
+import { CourseService } from 'src/course/course.service';
+import { Course } from 'src/course/course.entity';
 
 @Controller('attendanceSession')
 export class AttendanceSessionController {
   constructor(
     private readonly attendanceSessionService: AttendanceSessionService,
+    private readonly courseService: CourseService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -51,10 +54,26 @@ export class AttendanceSessionController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(
+  async create(
     @Body() attendanceSession: Partial<AttendanceSession>,
   ): Promise<AttendanceSession> {
-    return this.attendanceSessionService.create(attendanceSession);
+    let course: Course | undefined = undefined;
+
+    if (attendanceSession.courseCode && attendanceSession.courseName) {
+      const request: Partial<Course> = {
+        teacherId: attendanceSession.teacherId,
+        courseCode: attendanceSession.courseCode,
+        courseName: attendanceSession.courseName,
+      };
+      course = await this.courseService.create(request);
+    }
+
+    const request: Partial<AttendanceSession> = {
+      ...attendanceSession,
+      courseId: course?.id ?? attendanceSession.courseId,
+    };
+
+    return this.attendanceSessionService.create(request);
   }
 
   @UseGuards(JwtAuthGuard)

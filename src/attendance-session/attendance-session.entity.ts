@@ -32,6 +32,10 @@ export class AttendanceSession {
   @Column({ name: 'course_name' })
   courseName: string;
 
+  courseCode: string;
+
+  teacherId: number;
+
   @OneToMany(() => AttendanceRecord, (record) => record.session)
   attendanceRecords: AttendanceRecord[];
 
