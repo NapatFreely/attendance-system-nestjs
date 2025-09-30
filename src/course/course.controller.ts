@@ -58,13 +58,12 @@ export class CourseController {
     @Param('id', ParseIntPipe) id: number,
     @Param('sessionId', ParseIntPipe) sessionId: number,
   ): Promise<void> {
-    const sessions = await this.attendanceSessionService.findByCourseId(id);
-    if (sessions) {
-      sessions.forEach((item) => {
-        this.attendanceRecordService.removeAllSession(item.id);
-      });
+    const session = await this.attendanceSessionService.findOne(sessionId);
+    if (session) {
+      this.attendanceRecordService.removeAllSession(session.id);
+      this.attendanceSessionService.remove(sessionId);
+    } else {
+      await this.courseService.remove(id);
     }
-    await this.attendanceSessionService.removeAllCourse(id);
-    await this.courseService.remove(id);
   }
 }

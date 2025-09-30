@@ -41,6 +41,7 @@ export class AttendanceSessionService {
   ): Promise<AttendanceSession> {
     const existingStudent = await this.findOneByAttendanceSession(
       attendanceSession.sessionId ?? '',
+      attendanceSession.courseId ?? 0,
     );
     if (existingStudent) {
       throw new ConflictException('Session Id already in use.');
@@ -69,8 +70,9 @@ export class AttendanceSessionService {
 
   findOneByAttendanceSession(
     sessionId: string,
+    courseId: number,
   ): Promise<AttendanceSession | null> {
-    return this.attendanceSessionRepository.findOneBy({ sessionId });
+    return this.attendanceSessionRepository.findOneBy({ sessionId, courseId });
   }
 
   findByCourseId(courseId: number): Promise<AttendanceSession[]> {
